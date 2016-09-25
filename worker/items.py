@@ -8,7 +8,9 @@
 import scrapy
 
 
-class WorkerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class Ad(scrapy.Item):
+    title = scrapy.Field()
+    description = scrapy.Field()
+    price = scrapy.Field()
+    date = scrapy.Field()
+    author = scrapy.Field()

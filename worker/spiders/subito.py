@@ -1,28 +1,36 @@
 # -*- coding: utf-8 -*-
 import scrapy
 
+from worker.items import Ad
 from worker.spiders.base_spider import BaseSpider
 
 
 class SubitoSpider(BaseSpider):
+
     name = "subito"
     allowed_domains = ["subito.it"]
-    start_urls = (
-        'http://www.subito.it/',
-        # 'http://www.subito.it/annunci-lombardia/vendita/moto-e-scooter/milano/milano/?pe=3&ccs=125&cce=125&mt=4'
-    )
+    custom_settings = {
+        'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
+    }
 
-    # def parse(self, response):
-    #     pass
+    def __init__(self, region=None, ads_type=None, city=None,  *args, **kwargs):
+        super(SubitoSpider, self).__init__(*args, **kwargs)
+        self.load_config()
+        self.start_urls = ['http://www.subito.it/annunci-%s/%s/appartamenti/%s/%s/' % (region, ads_type, region, city)]
 
+    def parse(self, response):
+        self.logger.info('A response from %s just arrived!', response.url)
 
-    def start_requests(self):
-        return [scrapy.FormRequest("http://www.subito.it/annunci-lombardia/vendita/moto-e-scooter/milano/milano/",
-                                   formdata={'user': 'john', 'pass': 'secret'},
-                                   callback=self.logged_in)]
+        # ad_titles = response.xpath(self.parser.get('spider', 'items_list') + '/text()').extract()
+        ad_urls = response.xpath(self.parser.get('spider', 'items_list') + '/@href').extract()
 
+        for url in ad_urls:
+            yield scrapy.Request(url, callback=self.parse_ads)
 
-    def logged_in(self, response):
-        # here you would extract links to follow and return Requests for
-        # each of them, with another callback
-        pass
+    def parse_ads(self, response):
+        title = response.xpath(self.parser.get('spider', 'title') + '/text()').extract_first().encode('UTF8')
+        description = response.xpath(self.parser.get('spider', 'description') + '/text()').extract_first().encode('UTF8')
+        price = response.xpath(self.parser.get('spider', 'price') + '/text()').extract_first().encode(
+            'UTF8')
+
+        yield Ad(title=title, description=description, price=price)
