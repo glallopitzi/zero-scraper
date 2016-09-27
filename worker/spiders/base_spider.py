@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from ConfigParser import SafeConfigParser, RawConfigParser
 
 import scrapy
@@ -15,14 +16,14 @@ class BaseSpider(scrapy.Spider):
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
     }
 
-    def __init__(self, name=None, region=None, ads_type=None, city=None, *args, **kwargs):
+    def __init__(self, name=None, category=None, region=None, ads_type=None, city=None, *args, **kwargs):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
         self.load_config(name)
 
         self.name = name
         self.allowed_domains = [self.parser.get(name, 'allowed_domains')]
-        self.start_urls = [self.parser.get(name, 'start_urls') % (region, ads_type, region, city)]
+        self.start_urls = [self.parser.get(name, 'start_urls') % (region, ads_type, category, region, city)]
 
     def parse(self, response):
         self.logger.info('A response from %s just arrived!', response.url)
@@ -35,13 +36,12 @@ class BaseSpider(scrapy.Spider):
 
     def parse_ads(self, response):
         title = response.xpath(self.parser.get(self.name, 'title') + '/text()').extract_first().encode('UTF8')
-        description = response.xpath(self.parser.get(self.name, 'description') + '/text()').extract_first().encode(
-            'UTF8')
-        # price = response.xpath(self.parser.get(self.name, 'price') + '/text()').extract_first().encode(
-        #     'UTF8')
-        date = response.xpath(self.parser.get(self.name, 'date') + '/text()').extract_first().encode('UTF8')
+        description = response.xpath(self.parser.get(self.name, 'description') + '/text()').extract_first().encode('UTF8')
+        price = response.xpath(self.parser.get(self.name, 'price') + '/text()').extract_first().encode('UTF8')
+        price = re.sub(r'[^\w]', '', price).strip()
+        date = response.xpath(self.parser.get(self.name, 'date')).extract_first().encode('UTF8')
         author = response.xpath(self.parser.get(self.name, 'author') + '/text()').extract_first().encode('UTF8')
-        yield Ad(title=title, description=description, date=date, author=author)
+        yield Ad(title=title, description=description, price=price, date=date, author=author)
 
     def load_config(self, name):
         self.parser = RawConfigParser()
