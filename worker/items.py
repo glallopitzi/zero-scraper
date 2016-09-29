@@ -9,8 +9,15 @@ import scrapy
 
 
 class Ad(scrapy.Item):
+    url = scrapy.Field()
     title = scrapy.Field()
     description = scrapy.Field()
     price = scrapy.Field()
     date = scrapy.Field()
     author = scrapy.Field()
+    categories = []
+
+
+class AdCategory(scrapy.Item):
+    title = scrapy.Field()
+    description = scrapy.Field()

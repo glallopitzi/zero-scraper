@@ -23,7 +23,9 @@ class BaseSpider(scrapy.Spider):
 
         self.name = name
         self.allowed_domains = [self.parser.get(name, 'allowed_domains')]
-        self.start_urls = [self.parser.get(name, 'start_urls') % (region, ads_type, category, region, city)]
+
+        # FIXME configurable arguments for url starting points
+        self.start_urls = [self.parser.get(name, 'start_urls') % (ads_type, category, city)]
 
     def parse(self, response):
         self.logger.info('A response from %s just arrived!', response.url)
@@ -35,15 +37,22 @@ class BaseSpider(scrapy.Spider):
             yield scrapy.Request(url, callback=self.parse_ads)
 
     def parse_ads(self, response):
-        title = response.xpath(self.parser.get(self.name, 'title') + '/text()').extract_first().encode('UTF8')
-        description = response.xpath(self.parser.get(self.name, 'description') + '/text()').extract_first().encode('UTF8')
-        price = response.xpath(self.parser.get(self.name, 'price') + '/text()').extract_first().encode('UTF8')
+        url = response.url
+        title = self.extract_field_text(response, 'title')
+        description = self.extract_field_text(response, 'description')
+        price = self.extract_field_text(response, 'price')
         price = re.sub(r'[^\w]', '', price).strip()
-        date = response.xpath(self.parser.get(self.name, 'date')).extract_first().encode('UTF8')
-        author = response.xpath(self.parser.get(self.name, 'author') + '/text()').extract_first().encode('UTF8')
-        yield Ad(title=title, description=description, price=price, date=date, author=author)
+        date = self.extract_field_text(response, 'date')
+        author = self.extract_field_text(response, 'author')
+        yield Ad(url=url, title=title, description=description, price=price, date=date, author=author)
 
     def load_config(self, name):
         self.parser = RawConfigParser()
         self.parser.read('../../config/spiders.cfg')
         self.logger.info('Config for %s loaded, found %s items' % (self.name, len(self.parser.items(name))))
+
+    def extract_field_text(self, response, name):
+        res = ""
+        if self.parser.get(self.name, name) != '':
+            res = response.xpath(self.parser.get(self.name, name) + '/text()').extract_first().encode('UTF8')
+        return res
