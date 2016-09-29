@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
-from ConfigParser import SafeConfigParser, RawConfigParser
-
 import scrapy
-
+from ConfigParser import SafeConfigParser, RawConfigParser
+from string import Template
 from worker.items import Ad
 
 
@@ -24,8 +23,10 @@ class BaseSpider(scrapy.Spider):
         self.name = name
         self.allowed_domains = [self.parser.get(name, 'allowed_domains')]
 
-        # FIXME configurable arguments for url starting points
-        self.start_urls = [self.parser.get(name, 'start_urls') % (ads_type, category, city)]
+        d = dict(name=name, category=category, region=region, ads_type=ads_type, city=city)
+        start_urls_template = Template(self.parser.get(name, 'start_urls'))
+
+        self.start_urls = [start_urls_template.substitute(d)]
 
     def parse(self, response):
         self.logger.info('A response from %s just arrived!', response.url)
@@ -42,7 +43,7 @@ class BaseSpider(scrapy.Spider):
         description = self.extract_field_text(response, 'description')
         price = self.extract_field_text(response, 'price')
         price = re.sub(r'[^\w]', '', price).strip()
-        date = self.extract_field_text(response, 'date')
+        date = self.extract_field(response, 'date')
         author = self.extract_field_text(response, 'author')
         yield Ad(url=url, title=title, description=description, price=price, date=date, author=author)
 
@@ -55,4 +56,10 @@ class BaseSpider(scrapy.Spider):
         res = ""
         if self.parser.get(self.name, name) != '':
             res = response.xpath(self.parser.get(self.name, name) + '/text()').extract_first().encode('UTF8')
+        return res
+
+    def extract_field(self, response, name):
+        res = ""
+        if self.parser.get(self.name, name) != '':
+            res = response.xpath(self.parser.get(self.name, name)).extract_first().encode('UTF8')
         return res
