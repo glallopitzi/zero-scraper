@@ -18,12 +18,13 @@ class BaseSpider(scrapy.Spider):
     def __init__(self, name=None, category=None, region=None, ads_type=None, city=None, *args, **kwargs):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
+        d = dict(name=name, category=category, region=region, ads_type=ads_type, city=city)
+
         self.load_config(name)
 
         self.name = name
         self.allowed_domains = [self.parser.get(name, 'allowed_domains')]
 
-        d = dict(name=name, category=category, region=region, ads_type=ads_type, city=city)
         start_urls_template = Template(self.parser.get(name, 'start_urls'))
 
         self.start_urls = [start_urls_template.substitute(d)]
@@ -35,7 +36,13 @@ class BaseSpider(scrapy.Spider):
         ad_urls = response.xpath(self.parser.get(self.name, 'items_list') + '/@href').extract()
 
         for url in ad_urls:
-            yield scrapy.Request(url, callback=self.parse_ads)
+            url_string = url.encode('UTF8')
+
+            # TODO fix url if domain missing
+            if not url_string.startswith('http://www.' + self.parser.get(self.name, 'allowed_domains')):
+                url_string = 'http://www.' + self.parser.get(self.name, 'allowed_domains') + url_string
+
+            yield scrapy.Request(url_string, callback=self.parse_ads)
 
     def parse_ads(self, response):
         url = response.url
