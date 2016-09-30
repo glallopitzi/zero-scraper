@@ -15,6 +15,8 @@ class BaseSpider(scrapy.Spider):
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
     }
 
+    rx = re.compile('\W+')
+
     def __init__(self, name=None, category=None, region=None, ads_type=None, city=None, *args, **kwargs):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
@@ -63,6 +65,7 @@ class BaseSpider(scrapy.Spider):
         res = ""
         if self.parser.get(self.name, name) != '':
             res = response.xpath(self.parser.get(self.name, name) + '/text()').extract_first().encode('UTF8')
+        res = self.rx.sub(" ", res).strip()
         return res
 
     def extract_field(self, response, name):
