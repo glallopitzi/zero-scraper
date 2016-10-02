@@ -6,6 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import json
+import re
 
 
 class JsonWriterPipeline(object):
@@ -16,4 +17,16 @@ class JsonWriterPipeline(object):
     def process_item(self, item, spider):
         line = json.dumps(dict(item)) + "\n"
         self.file.write(line)
+        return item
+
+
+class DataCleanerPipeline(object):
+    rx = re.compile('\W+')
+
+    def process_item(self, item, spider):
+        for field in item:
+            res = item[field]
+            res = self.rx.sub(" ", res).strip()
+            print field + ":" + res
+            item[field] = res
         return item

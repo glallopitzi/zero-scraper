@@ -63,6 +63,7 @@ NEWSPIDER_MODULE = 'worker.spiders'
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'worker.pipelines.JsonWriterPipeline': 300,
+   'worker.pipelines.DataCleanerPipeline': 500
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
