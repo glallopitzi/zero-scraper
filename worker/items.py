@@ -10,6 +10,7 @@ import scrapy
 
 class Ad(scrapy.Item):
     url = scrapy.Field()
+    website = scrapy.Field()
     title = scrapy.Field()
     description = scrapy.Field()
     price = scrapy.Field()
