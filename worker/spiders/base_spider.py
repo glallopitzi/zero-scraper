@@ -4,6 +4,7 @@ import scrapy
 from ConfigParser import SafeConfigParser, RawConfigParser
 from string import Template
 from worker.items import Ad
+import os
 
 
 class BaseSpider(scrapy.Spider):
@@ -16,18 +17,16 @@ class BaseSpider(scrapy.Spider):
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
     }
 
+    p = re.compile('^(https?://[^/]+/)([^?#]*)?')
+
     def __init__(self, name=None, category=None, region=None, ads_type=None, city=None, *args, **kwargs):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
         self.args = dict(name=name, category=category, region=region, ads_type=ads_type, city=city)
-
-        self.load_config(name)
-
         self.name = name
+        self.load_config(name)
         self.allowed_domains = [self.parser.get(name, 'allowed_domains')]
-
         start_urls_template = Template(self.parser.get(name, 'start_urls'))
-
         self.start_urls = [start_urls_template.substitute(self.args)]
 
     def parse(self, response):
@@ -35,12 +34,7 @@ class BaseSpider(scrapy.Spider):
         ad_urls = response.xpath(self.parser.get(self.name, 'items_list') + '/@href').extract()
 
         for url in ad_urls:
-            url_string = url.encode('UTF8')
-
-            # TODO fix url if domain missing
-            if not url_string.startswith('http://www.' + self.parser.get(self.name, 'allowed_domains')):
-                url_string = 'http://www.' + self.parser.get(self.name, 'allowed_domains') + url_string
-
+            url_string = self.get_absolute_url_string(url, response)
             yield scrapy.Request(url_string, callback=self.parse_ads)
 
     def parse_ads(self, response):
@@ -54,9 +48,9 @@ class BaseSpider(scrapy.Spider):
         author = self.extract_field(response, 'author')
         yield Ad(url=url, website=website, title=title, description=description, price=price, date=date, author=author)
 
-    def load_config(self, name):
+    def load_config(self, name, BASE_CONFIG_PATH='/Users/gianc/Documents/git/zero-scraper'):
         self.parser = RawConfigParser()
-        self.parser.read('../../config/spiders.cfg')
+        self.parser.read(BASE_CONFIG_PATH + '/config/spiders.cfg')
         self.logger.info('Config for %s loaded, found %s items' % (self.name, len(self.parser.items(name))))
 
     def extract_field(self, response, name):
@@ -64,3 +58,13 @@ class BaseSpider(scrapy.Spider):
         if self.parser.get(self.name, name) != '':
             res = response.xpath(self.parser.get(self.name, name)).extract_first().encode('UTF8')
         return res
+
+    def get_absolute_url_string(self, url, response):
+        url_string = url.encode('UTF8')
+        referer = response.request.url
+        referer_domain = self.p.match(referer).groups()[0]
+        # TODO fix url if domain missing
+        if not url_string.startswith(referer_domain):
+            url_string = referer_domain + url_string
+
+        return url_string
