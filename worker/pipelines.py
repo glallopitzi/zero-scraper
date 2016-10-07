@@ -12,18 +12,8 @@ from scrapy import signals
 from scrapy.exporters import JsonItemExporter
 
 
-class JsonWriterPipeline(object):
-
-    def __init__(self):
-        self.file = open('items.jl', 'a')
-
-    def process_item(self, item, spider):
-        line = json.dumps(dict(item)) + "\n"
-        self.file.write(line)
-        return item
-
-
 class JsonExporterPipeline(object):
+
 
     def __init__(self):
         self.files = {}
@@ -37,7 +27,7 @@ class JsonExporterPipeline(object):
 
 
     def spider_opened(self, spider):
-        file = open('%s_items.json' % spider.name, 'w+b')
+        file = open('exports/%s_items.json' % spider.name, 'w+b')
         self.files[spider] = file
         self.exporter = JsonItemExporter(file)
         self.exporter.start_exporting()
@@ -59,8 +49,9 @@ class DataCleanerPipeline(object):
 
     def process_item(self, item, spider):
         for field in item:
-            res = item[field]
-            res = self.rx.sub(" ", res).strip()
-            print field + ":" + res
-            item[field] = res
+            if field != "url":
+                res = item[field]
+                res = self.rx.sub(" ", res).strip()
+                # print field + ":" + res
+                item[field] = res
         return item

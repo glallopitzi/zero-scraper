@@ -62,7 +62,6 @@ NEWSPIDER_MODULE = 'worker.spiders'
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   # 'worker.pipelines.JsonWriterPipeline': 300,
    'worker.pipelines.DataCleanerPipeline': 500,
    'worker.pipelines.JsonExporterPipeline': 600
 }
