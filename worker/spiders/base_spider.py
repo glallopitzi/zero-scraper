@@ -29,9 +29,21 @@ class BaseSpider(scrapy.Spider):
         start_urls_template = Template(self.parser.get(name, 'start_urls'))
         self.start_urls = [start_urls_template.substitute(self.args)]
 
-    def parse(self, response):
+    def parse(self, response, next_flag=True):
         self.logger.info('A response from %s just arrived!', response.url)
-        ad_urls = response.xpath(self.parser.get(self.name, 'items_list') + '/@href').extract()
+        ad_urls = response.xpath(self.parser.get(self.name, 'items_list')).extract()
+
+        next_page_url = response.xpath(self.parser.get(self.name, 'next_urls')).extract_first()
+        next_page_url_string = self.get_absolute_url_string(next_page_url, response)
+        yield scrapy.Request(next_page_url_string, callback=self.parse_next_page)
+
+        for url in ad_urls:
+            url_string = self.get_absolute_url_string(url, response)
+            yield scrapy.Request(url_string, callback=self.parse_ads)
+
+    def parse_next_page(self, response):
+        self.logger.info('A response from %s just arrived!', response.url)
+        ad_urls = response.xpath(self.parser.get(self.name, 'items_list')).extract()
 
         for url in ad_urls:
             url_string = self.get_absolute_url_string(url, response)
