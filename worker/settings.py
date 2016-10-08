@@ -64,7 +64,7 @@ NEWSPIDER_MODULE = 'worker.spiders'
 ITEM_PIPELINES = {
    'worker.pipelines.DataCleanerPipeline': 500,
    'worker.pipelines.JsonExporterPipeline': 600,
-   # 'scrapyelasticsearch.scrapyelasticsearch.ElasticSearchPipeline': 700
+   'scrapyelasticsearch.scrapyelasticsearch.ElasticSearchPipeline': 700
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -88,7 +88,6 @@ ITEM_PIPELINES = {
 
 
 ELASTICSEARCH_SERVERS = ['http://192.168.99.100/']
+ELASTICSEARCH_PORT = 9200
 ELASTICSEARCH_INDEX = 'scrapy'
-ELASTICSEARCH_INDEX_DATE_FORMAT = '%Y-%m'
 ELASTICSEARCH_TYPE = 'items'
-ELASTICSEARCH_UNIQ_KEY = 'url'  # Custom uniqe key
