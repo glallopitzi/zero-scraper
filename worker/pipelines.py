@@ -51,9 +51,21 @@ class DataCleanerPipeline(object):
 
     def process_item(self, item, spider):
         for field in item:
-            if field != "url":
+            if field != "url" and field != "website" and field != "date":
                 res = item[field]
                 res = self.rx.sub(" ", res).strip()
                 # print field + ":" + res
                 item[field] = res
+        return item
+
+
+class VisitedURLStorePipeline(object):
+
+    url_list_file = None
+
+    def __init__(self):
+        self.url_list_file = open("crawled_urls", 'a')
+
+    def process_item(self, item, spider):
+        self.url_list_file.write(item["url"])
         return item
