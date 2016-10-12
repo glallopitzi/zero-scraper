@@ -11,7 +11,6 @@ from worker.items import Ad
 
 
 class BaseSpider(scrapy.Spider):
-
     parser = None
     name = 'base_spider'
     args = None
@@ -30,15 +29,15 @@ class BaseSpider(scrapy.Spider):
         self.args = dict(name=name, category=category, region=region, ads_type=ads_type, city=city)
         self.name = name
         self.load_config(name)
-        self.allowed_domains = [self.parser.get(name, 'allowed_domains')]
-        self.start_urls = [Template(self.parser.get(name, 'start_urls')).substitute(self.args)]
+        self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
+        self.start_urls = [Template(self.parser.get('general', 'start_urls')).substitute(self.args)]
 
     def parse(self, response, next_flag=True):
         self.logger.info('A response from %s just arrived!', response.url)
-        ad_urls = response.xpath(self.parser.get(self.name, 'items_list')).extract()
+        ad_urls = response.xpath(self.parser.get('general', 'items_list')).extract()
         if self.max_pages > 0:
             self.max_pages -= 1
-            next_page_url = response.xpath(self.parser.get(self.name, 'next_urls')).extract_first()
+            next_page_url = response.xpath(self.parser.get('general', 'next_urls')).extract_first()
             next_page_url_string = self.get_absolute_url_string(next_page_url, response)
             yield scrapy.Request(next_page_url_string, callback=self.parse)
 
@@ -47,26 +46,16 @@ class BaseSpider(scrapy.Spider):
             yield scrapy.Request(url_string, callback=self.parse_ads)
 
     def parse_ads(self, response):
-        url = response.url
-        website = self.parser.get(self.name, 'allowed_domains')
 
-        title = self.extract_field(response, 'title')
-        description = self.extract_field(response, 'description')
-        price = self.extract_field(response, 'price')
-        date = self.extract_field(response, 'date')
-        author = self.extract_field(response, 'author')
-        dimension = self.extract_field(response, 'dimension')
+        to_add = {
+            'url': response.url,
+            'website': self.parser.get('general', 'allowed_domains'),
+        }
 
-        yield Ad(
-            url=url,
-            website=website,
-            title=title,
-            description=description,
-            price=price,
-            date=date,
-            author=author,
-            dimension=dimension
-        )
+        for field_name in self.parser.options('item-selectors'):
+            to_add[field_name] = self.extract_field(response, field_name)
+
+        yield Ad(to_add)
 
     def load_config(self, name, BASE_CONFIG_PATH='/Users/gianc/Documents/git/zero-scraper'):
         self.parser = RawConfigParser()
@@ -77,16 +66,14 @@ class BaseSpider(scrapy.Spider):
     def extract_field(self, response, name):
         res = ""
         try:
-            if self.parser.get(self.name, name) != '':
-                elem = response.xpath(self.parser.get(self.name, name))
+            if self.parser.get('item-selectors', name) != '':
+                elem = response.xpath(self.parser.get('item-selectors', name))
                 if elem is not None:
                     res = elem.extract_first().encode('UTF8')
             return res
         except:
             print sys.exc_info()
             return ""
-
-
 
     def get_absolute_url_string(self, url, response):
         url_string = response.urljoin(url)
