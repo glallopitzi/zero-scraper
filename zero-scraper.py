@@ -26,9 +26,12 @@ es = Elasticsearch([
 ])
 
 print es.info()
+es.indices.delete("scrapy")
 
 # print es.indices.exists(index='scrapy')
 # print es.count(index='scrapy')
 
-# print json.dumps(es.search(index='scrapy', q='trilocale'))
-print json.dumps(es.indices.analyze(index='scrapy'))
+# res = es.search(index='scrapy', q='trilocale')
+# print res['total']
+# print json.dumps(res)
+# print json.dumps(es.indices.analyze(index='scrapy'))

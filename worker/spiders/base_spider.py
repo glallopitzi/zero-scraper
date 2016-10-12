@@ -5,6 +5,7 @@ from string import Template
 from urlparse import urlparse
 
 import scrapy
+import sys
 
 from worker.items import Ad
 
@@ -54,19 +55,38 @@ class BaseSpider(scrapy.Spider):
         price = self.extract_field(response, 'price')
         date = self.extract_field(response, 'date')
         author = self.extract_field(response, 'author')
+        dimension = self.extract_field(response, 'dimension')
 
-        yield Ad(url=url, website=website, title=title, description=description, price=price, date=date, author=author)
+        yield Ad(
+            url=url,
+            website=website,
+            title=title,
+            description=description,
+            price=price,
+            date=date,
+            author=author,
+            dimension=dimension
+        )
 
     def load_config(self, name, BASE_CONFIG_PATH='/Users/gianc/Documents/git/zero-scraper'):
         self.parser = RawConfigParser()
-        self.parser.read(BASE_CONFIG_PATH + '/config/spiders.cfg')
-        self.logger.info('Config for %s loaded, found %s items' % (self.name, len(self.parser.items(name))))
+        config_filename = "%s/config/%s.cfg" % (BASE_CONFIG_PATH, name)
+        self.parser.read(config_filename)
+        self.logger.info('Config for %s loaded from %s, found %s sections' % (config_filename, self.name, len(self.parser.sections())))
 
     def extract_field(self, response, name):
         res = ""
-        if self.parser.get(self.name, name) != '':
-            res = response.xpath(self.parser.get(self.name, name)).extract_first().encode('UTF8')
-        return res
+        try:
+            if self.parser.get(self.name, name) != '':
+                elem = response.xpath(self.parser.get(self.name, name))
+                if elem is not None:
+                    res = elem.extract_first().encode('UTF8')
+            return res
+        except:
+            print sys.exc_info()
+            return ""
+
+
 
     def get_absolute_url_string(self, url, response):
         url_string = response.urljoin(url)

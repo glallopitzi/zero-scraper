@@ -16,6 +16,7 @@ class Ad(scrapy.Item):
     price = scrapy.Field()
     date = scrapy.Field()
     author = scrapy.Field()
+    dimension = scrapy.Field()
     categories = []
 
 
