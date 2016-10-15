@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import re
+import sys
 from ConfigParser import RawConfigParser
 from string import Template
-from urlparse import urlparse
 
 import scrapy
-import sys
 
 from worker.items import Ad
 
@@ -20,8 +18,6 @@ class BaseSpider(scrapy.Spider):
     custom_settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
     }
-
-    p = re.compile('^(https?://[^/]+/)([^?#]*)?')
 
     def __init__(self, name=None, category=None, region=None, ads_type=None, city=None, *args, **kwargs):
         super(BaseSpider, self).__init__(*args, **kwargs)
@@ -57,9 +53,9 @@ class BaseSpider(scrapy.Spider):
 
         yield Ad(to_add)
 
-    def load_config(self, name, BASE_CONFIG_PATH='/Users/gianc/Documents/git/zero-scraper'):
+    def load_config(self, name):
         self.parser = RawConfigParser()
-        config_filename = "%s/config/%s.cfg" % (BASE_CONFIG_PATH, name)
+        config_filename = "config/%s.cfg" % name
         self.parser.read(config_filename)
         self.logger.info('Config for %s loaded from %s, found %s sections' % (config_filename, self.name, len(self.parser.sections())))
 
@@ -77,5 +73,4 @@ class BaseSpider(scrapy.Spider):
 
     def get_absolute_url_string(self, url, response):
         url_string = response.urljoin(url)
-        self.logger.debug("respose.urljoin: %s" % url_string)
         return url_string
