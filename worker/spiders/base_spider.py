@@ -4,6 +4,7 @@ from ConfigParser import RawConfigParser
 from string import Template
 
 import scrapy
+from elasticsearch import Elasticsearch
 
 from worker.items import Ad
 
@@ -12,8 +13,8 @@ class BaseSpider(scrapy.Spider):
     parser = None
     name = 'base_spider'
     args = None
-    max_pages = 1
-    already_crawled_url = ()
+    max_pages = 2
+    already_seen_urls = []
 
     custom_settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
@@ -26,6 +27,7 @@ class BaseSpider(scrapy.Spider):
         self.name = name
         self.load_config(name)
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
+        self.get_already_seen_urls()
         self.start_urls = [Template(self.parser.get('general', 'start_urls')).substitute(self.args)]
 
     def parse(self, response, next_flag=True):
@@ -39,7 +41,10 @@ class BaseSpider(scrapy.Spider):
 
         for url in ad_urls:
             url_string = self.get_absolute_url_string(url, response)
-            yield scrapy.Request(url_string, callback=self.parse_ads)
+            if url_string not in self.already_seen_urls:
+                yield scrapy.Request(url_string, callback=self.parse_ads)
+            else:
+                self.logger.debug("URL %s already crawled" % url_string)
 
     def parse_ads(self, response):
 
@@ -74,3 +79,15 @@ class BaseSpider(scrapy.Spider):
     def get_absolute_url_string(self, url, response):
         url_string = response.urljoin(url)
         return url_string
+
+    def get_already_seen_urls(self):
+        es = Elasticsearch([{'host': 'local.docker.dev'}])
+        res = es.search(
+            index='scrapy',
+            filter_path=['hits.hits._source.url'],
+            q='website:' + self.parser.get('general', 'allowed_domains'),
+            size=1000
+        )
+        if res:
+            for elem in res['hits']['hits']:
+                self.already_seen_urls.append(elem['_source']['url'])

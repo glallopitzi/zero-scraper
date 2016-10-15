@@ -61,11 +61,28 @@ class DataCleanerPipeline(object):
 
 class VisitedURLStorePipeline(object):
 
-    url_list_file = None
+    files = None
 
     def __init__(self):
-        self.url_list_file = open("crawled_urls", 'a')
+        self.files = {}
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        pipeline = cls()
+        crawler.signals.connect(pipeline.spider_opened, signals.spider_opened)
+        crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
+        return pipeline
+
+    def spider_opened(self, spider):
+        export_filename = 'exports/%s_crawled_urls' % spider.name
+        spider.logger.info("store crawled urls to: %s" % export_filename)
+        file = open(export_filename, 'a')
+        self.files[spider.name] = file
+
+    def spider_closed(self, spider):
+        file = self.files.pop(spider.name)
+        file.close()
 
     def process_item(self, item, spider):
-        self.url_list_file.write(item["url"])
+        self.files[spider.name].write(item["url"] + "\n")
         return item

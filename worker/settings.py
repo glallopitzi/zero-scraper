@@ -62,7 +62,7 @@ NEWSPIDER_MODULE = 'worker.spiders'
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'worker.pipelines.DataCleanerPipeline': 500,
-    'worker.pipelines.VisitedURLStorePipeline': 510,
+    # 'worker.pipelines.VisitedURLStorePipeline': 510,
     # 'worker.pipelines.JsonExporterPipeline': 511,
     'scrapyelasticsearch.scrapyelasticsearch.ElasticSearchPipeline': 700
 }
