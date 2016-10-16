@@ -7,9 +7,11 @@
 
 import time
 import re
+import locale
 
 from scrapy import signals
 from scrapy.exporters import JsonItemExporter
+
 
 
 class JsonExporterPipeline(object):
@@ -51,11 +53,26 @@ class DataCleanerPipeline(object):
 
     def process_item(self, item, spider):
         for field in item:
+            # if field == "description" or field == "title":
             if field != "url" and field != "website" and field != "date":
                 res = item[field]
                 res = self.rx.sub(" ", res).strip()
                 # print field + ":" + res
                 item[field] = res
+        return item
+
+
+class PriceCleanerPipeline(object):
+    rx = re.compile('\W+')
+
+    def process_item(self, item, spider):
+        for field in item:
+            if field == "price":
+                raw_price = item['price']
+                decimal_point_char = locale.localeconv()['decimal_point']
+                clean = re.sub(r'[^0-9' + decimal_point_char + r']+', '', str(raw_price))
+                value = float(clean)
+                item['price'] = value
         return item
 
 

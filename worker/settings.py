@@ -62,6 +62,7 @@ NEWSPIDER_MODULE = 'worker.spiders'
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'worker.pipelines.DataCleanerPipeline': 500,
+    'worker.pipelines.PriceCleanerPipeline': 501,
     # 'worker.pipelines.VisitedURLStorePipeline': 510,
     # 'worker.pipelines.JsonExporterPipeline': 511,
     'scrapyelasticsearch.scrapyelasticsearch.ElasticSearchPipeline': 700
@@ -87,7 +88,7 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-ELASTICSEARCH_SERVERS = ['http://192.168.99.100/']
+ELASTICSEARCH_SERVERS = ['http://local.docker.dev/']
 ELASTICSEARCH_PORT = 9200
 ELASTICSEARCH_INDEX = 'scrapy'
 ELASTICSEARCH_TYPE = 'items'

@@ -13,7 +13,7 @@ class BaseSpider(scrapy.Spider):
     parser = None
     name = 'base_spider'
     args = None
-    max_pages = 2
+    max_pages = 0
     already_seen_urls = []
 
     custom_settings = {

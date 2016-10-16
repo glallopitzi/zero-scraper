@@ -36,7 +36,7 @@ def crawl():
         'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
         'ITEM_PIPELINES': {
             'worker.pipelines.DataCleanerPipeline': 500,
-            'worker.pipelines.PriceCleanerPipeline': 501,
+            # 'worker.pipelines.PriceCleanerPipeline': 501,
             # 'worker.pipelines.VisitedURLStorePipeline': 510,
             # 'worker.pipelines.JsonExporterPipeline': 511,
             'scrapyelasticsearch.scrapyelasticsearch.ElasticSearchPipeline': 700
