@@ -20,6 +20,11 @@ if args.a == 'delete':
     es = Elasticsearch([{'host': 'local.docker.dev'}])
     print es.indices.delete("scrapy")
 
+if args.a == 'reset':
+    es = Elasticsearch([{'host': 'local.docker.dev'}])
+    print es.indices.delete("scrapy")
+    print es.indices.create(index='scrapy', ignore=400)
+
 
 
 # process = CrawlerProcess({

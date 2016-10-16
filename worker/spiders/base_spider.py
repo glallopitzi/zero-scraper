@@ -24,6 +24,7 @@ class BaseSpider(scrapy.Spider):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
         self.args = dict(name=name, category=category, region=region, ads_type=ads_type, city=city)
+
         self.name = name
         self.load_config(name)
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
