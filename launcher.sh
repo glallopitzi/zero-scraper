@@ -11,4 +11,8 @@ fi
 
 
 
-curl -X GET -H "Cache-Control: no-cache" "http://192.168.99.100:9200/scrapy/_search?pretty" | jq ".hits.hits[]._source.url"
+scrapy crawl base_spider -a name=immobiliare -a category=appartamenti -a ads_type=affitti -a region=lombardia -a city=Milano
+
+scrapy crawl base_spider -a name=subito -a category=appartamenti -a ads_type=affitto -a region=lombardia -a city=milano
+
+#curl -X GET -H "Cache-Control: no-cache" "http://192.168.99.100:9200/scrapy/_search?pretty" | jq ".hits.hits[]._source.url"

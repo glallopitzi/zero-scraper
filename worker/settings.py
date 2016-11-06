@@ -63,6 +63,7 @@ NEWSPIDER_MODULE = 'worker.spiders'
 ITEM_PIPELINES = {
     'worker.pipelines.DataCleanerPipeline': 500,
     'worker.pipelines.PriceCleanerPipeline': 501,
+    'worker.pipelines.DateCleanerPipeline': 502,
     # 'worker.pipelines.VisitedURLStorePipeline': 510,
     # 'worker.pipelines.JsonExporterPipeline': 511,
     'scrapyelasticsearch.scrapyelasticsearch.ElasticSearchPipeline': 700
