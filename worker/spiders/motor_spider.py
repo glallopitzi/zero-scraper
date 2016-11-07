@@ -2,7 +2,7 @@ from worker.spiders.base_spider import BaseSpider
 
 
 class MotorSpider(BaseSpider):
-    
+
     parser = None
     name = 'motor_spider'
     args = None

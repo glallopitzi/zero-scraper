@@ -6,6 +6,7 @@ from elasticsearch import Elasticsearch
 from scrapy.crawler import CrawlerProcess
 
 from worker.spiders.base_spider import BaseSpider
+from worker.spiders.home_spider import HomeSpider
 
 parser = argparse.ArgumentParser(description='Zero scraper!')
 
@@ -48,20 +49,60 @@ def crawl():
         'ELASTICSEARCH_TYPE': 'items',
     })
 
-    # process.crawl(BaseSpider, name='subito', category='appartamenti', region='lombardia', ads_type='affitto',
-    #               city='milano')
-    # process.crawl(BaseSpider, name='wikicasa', category='appartamento', region='lombardia', ads_type='affitto',
-    #               city='milano')
-    # process.crawl(BaseSpider, name='casa', category='residenziale', region='lombardia', ads_type='affitti',
-    #               city='milano')
-    # process.crawl(BaseSpider, name='bakeca', category='casa', region='lombardia', ads_type='offro',
-    #               city='milano')
-    process.crawl(BaseSpider, name='immobiliare', category='appartamenti', region='lombardia', ads_type='affitti',
-                  city='Milano')
-    # process.crawl(BaseSpider, name='idealista', category='case', region='lombardia', ads_type='affitto',
-    #               city='milano')
-    # process.crawl(BaseSpider, name='trovocasa', category='Appartamento', region='lombardia', ads_type='Affitto',
-    #               city='Milano')
+
+    search_obj = {
+        'name': 'immobiliare',
+        'category': 'appartamenti',
+        'region': 'lombardia',
+        'ads_type': 'affitti',
+        'city': 'Milano'
+    }
+    process.crawl(HomeSpider, search_obj=search_obj)
+
+    search_obj = {
+        'name': 'wikicasa',
+        'category': 'appartamento',
+        'region': 'lombardia',
+        'ads_type': 'affitto',
+        'city': 'milano'
+    }
+    process.crawl(HomeSpider, search_obj=search_obj)
+
+    search_obj = {
+        'name': 'idealista',
+        'category': 'case',
+        'region': 'lombardia',
+        'ads_type': 'affitto',
+        'city': 'milano'
+    }
+    process.crawl(HomeSpider, search_obj=search_obj)
+
+    search_obj = {
+        'name': 'trovocasa',
+        'category': 'Appartamento',
+        'region': 'lombardia',
+        'ads_type': 'Affitto',
+        'city': 'Milano'
+    }
+    process.crawl(HomeSpider, search_obj=search_obj)
+
+    search_obj = {
+        'name': 'bakeca',
+        'category': 'casa',
+        'region': 'lombardia',
+        'ads_type': 'offro',
+        'city': 'milano'
+    }
+    process.crawl(HomeSpider, search_obj=search_obj)
+
+    search_obj = {
+        'name': 'subito',
+        'category': 'appartamenti',
+        'region': 'lombardia',
+        'ads_type': 'affitto',
+        'city': 'milano'
+    }
+    process.crawl(HomeSpider, search_obj=search_obj)
 
     process.start()  # the script will block here until the crawling is finished
 

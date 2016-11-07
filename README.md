@@ -13,6 +13,7 @@ run your docker elk instance and enable the related pipeline.
 
 
 ## TODO ##
+* handle order result on first page parameter
 
 * index list of crawled page items (to prevent duplicates)
 * better handling for pagination (ex: wikicasa with p parameter instead of links)
