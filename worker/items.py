@@ -13,16 +13,20 @@ class Ad(scrapy.Item):
     website = scrapy.Field()
     title = scrapy.Field()
     description = scrapy.Field()
-    address = scrapy.Field()
-    lat = scrapy.Field()
-    lng = scrapy.Field()
     price = scrapy.Field()
     date = scrapy.Field()
     author = scrapy.Field()
+
+
+class HomeAd(Ad):
     dimension = scrapy.Field()
-    categories = []
+    address = scrapy.Field()
+    lat = scrapy.Field()
+    lng = scrapy.Field()
 
 
-class AdCategory(scrapy.Item):
-    title = scrapy.Field()
-    description = scrapy.Field()
+class MotorAd(Ad):
+    displacement = scrapy.Field()
+    plate = scrapy.Field()
+    year = scrapy.Field()
+

@@ -1,3 +1,4 @@
+from worker.items import HomeAd
 from worker.spiders.base_spider import BaseSpider
 
 
@@ -23,3 +24,14 @@ class HomeSpider(BaseSpider):
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
         self.get_already_seen_urls()
         self.start_urls = [self.get_start_urls_from_template()]
+
+    def parse_ads(self, response):
+        to_add = {
+            'url': response.url,
+            'website': self.parser.get('general', 'allowed_domains'),
+        }
+
+        for field_name in self.parser.options('item-selectors'):
+            to_add[field_name] = self.extract_field(response, field_name)
+
+        yield HomeAd(to_add)
