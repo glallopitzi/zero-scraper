@@ -84,3 +84,11 @@ class BaseSpider(scrapy.Spider):
 
     def get_start_urls_from_template(self):
         return Template(self.parser.get('general', 'start_urls')).substitute(self.args)
+
+    def parse_search_obj(self, search_obj, kwargs):
+        if search_obj is None:
+            search_obj = {}
+            for name, value in kwargs.items():
+                search_obj[name] = value
+        return search_obj
+

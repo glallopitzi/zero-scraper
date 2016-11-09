@@ -17,10 +17,10 @@ class HomeSpider(BaseSpider):
     def __init__(self, search_obj=None, *args, **kwargs):
         super(BaseSpider, self).__init__(*args, **kwargs)
 
-        self.args = search_obj
+        self.args = self.parse_search_obj(search_obj, kwargs)
 
-        self.name = search_obj['name']
-        self.load_config('home', search_obj['name'])
+        self.name = self.args['name']
+        self.load_config('home', self.args['name'])
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
         self.get_already_seen_urls()
         self.start_urls = [self.get_start_urls_from_template()]
