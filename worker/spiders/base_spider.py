@@ -9,6 +9,27 @@ from elasticsearch import Elasticsearch
 from worker.items import Ad
 
 
+def extract_field_given_selector(response, field_selector):
+    elem = response.xpath(field_selector)
+    if elem is not None and elem != []:
+        try:
+            res = elem.extract_first().encode('UTF8')
+            return res
+        except:
+            print sys.exc_info()
+            return ""
+
+
+def extract_field(response, raw_field_selector):
+    res = ""
+    if raw_field_selector != '':
+        for field_selector in raw_field_selector.split('|'):
+            elem = extract_field_given_selector(response, field_selector)
+            if elem is not None and elem != '':
+                break
+    return res
+
+
 class BaseSpider(scrapy.Spider):
     parser = None
     name = 'base_spider'
@@ -37,13 +58,14 @@ class BaseSpider(scrapy.Spider):
                 self.logger.debug("URL %s already crawled" % url_string)
 
     def parse_ads(self, response):
+
         to_add = {
             'url': response.url,
             'website': self.parser.get('general', 'allowed_domains'),
         }
 
         for field_name in self.parser.options('item-selectors'):
-            to_add[field_name] = self.extract_field(response, field_name)
+            to_add[field_name] = extract_field(response, field_name)
 
         yield Ad(to_add)
 
@@ -53,17 +75,18 @@ class BaseSpider(scrapy.Spider):
         self.parser.read(config_filename)
         self.logger.info('Config %s for type %s loaded from %s, found %s sections' % (config_filename, spider_type, self.name, len(self.parser.sections())))
 
-    def extract_field(self, response, name):
-        res = ""
-        try:
-            if self.parser.get('item-selectors', name) != '':
-                elem = response.xpath(self.parser.get('item-selectors', name))
-                if elem is not None:
-                    res = elem.extract_first().encode('UTF8')
-            return res
-        except:
-            print sys.exc_info()
-            return ""
+    def extract_all_fields(self, response):
+
+        to_add = {
+            'url': response.url,
+            'website': self.parser.get('general', 'allowed_domains'),
+        }
+
+        for field_name in self.parser.options('item-selectors'):
+            raw_field_selector = self.parser.get('item-selectors', field_name)
+            to_add[field_name] = extract_field(response, raw_field_selector)
+
+        return to_add
 
     @staticmethod
     def get_absolute_url_string(url, response):

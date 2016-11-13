@@ -26,12 +26,6 @@ class HomeSpider(BaseSpider):
         self.start_urls = [self.get_start_urls_from_template()]
 
     def parse_ads(self, response):
-        to_add = {
-            'url': response.url,
-            'website': self.parser.get('general', 'allowed_domains'),
-        }
-
-        for field_name in self.parser.options('item-selectors'):
-            to_add[field_name] = self.extract_field(response, field_name)
+        to_add = self.extract_all_fields(response)
 
         yield HomeAd(to_add)

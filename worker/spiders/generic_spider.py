@@ -1,3 +1,4 @@
+from worker.items import GenericAd
 from worker.spiders.base_spider import BaseSpider
 
 
@@ -23,3 +24,8 @@ class GenericSpider(BaseSpider):
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
         self.get_already_seen_urls()
         self.start_urls = [self.get_start_urls_from_template()]
+
+    def parse_ads(self, response):
+        to_add = self.extract_all_fields(response)
+
+        yield GenericAd(to_add)

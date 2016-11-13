@@ -30,3 +30,8 @@ class MotorAd(Ad):
     plate = scrapy.Field()
     year = scrapy.Field()
 
+
+class GenericAd(Ad):
+    year = scrapy.Field()
+
+
