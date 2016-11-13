@@ -26,139 +26,45 @@ DEFAULT_SETTINGS = {
     }
 
 
-def launch_crawlers_as_using_runner():
+def launch_crawlers_as_using_runner(data):
     configure_logging()
     runner = CrawlerProcess(DEFAULT_SETTINGS)
 
-    search_obj = {
-        'name': 'immobiliare',
-        'category': 'appartamenti',
-        'region': 'lombardia',
-        'ads_type': 'affitti',
-        'city': 'Milano'
-    }
-    runner.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'trovocasa',
-        'category': 'Appartamento',
-        'region': 'lombardia',
-        'ads_type': 'Affitto',
-        'city': 'Milano'
-    }
-    runner.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'idealista',
-        'category': 'case',
-        'region': 'lombardia',
-        'ads_type': 'affitto',
-        'city': 'milano'
-    }
-    runner.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'wikicasa',
-        'category': 'appartamento',
-        'region': 'lombardia',
-        'ads_type': 'affitto',
-        'city': 'milano'
-    }
-    runner.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'bakeca',
-        'category': 'casa',
-        'region': 'lombardia',
-        'ads_type': 'offro',
-        'city': 'milano'
-    }
-    runner.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'subito',
-        'category': 'appartamenti',
-        'region': 'lombardia',
-        'ads_type': 'affitto',
-        'city': 'milano'
-    }
-    # yield runner.crawl(HomeSpider, search_obj=search_obj)
+    for crawler in data['crawlers']:
+        pprint(crawler)
+        runner.crawl(HomeSpider, search_obj=crawler)
 
     d = runner.join()
     d.addBoth(lambda _: reactor.stop())
     reactor.run()
 
 
-def launch_crawlers_as_using_process():
+def launch_crawlers_as_using_process(data):
     process = CrawlerProcess(DEFAULT_SETTINGS)
 
-    search_obj = {
-        'name': 'immobiliare',
-        'category': 'appartamenti',
-        'region': 'lombardia',
-        'ads_type': 'affitti',
-        'city': 'Milano'
-    }
-    process.crawl(HomeSpider, search_obj=search_obj)
+    for crawler in data['crawlers']:
+        process.crawl(HomeSpider, search_obj=crawler)
 
-    search_obj = {
-        'name': 'trovocasa',
-        'category': 'Appartamento',
-        'region': 'lombardia',
-        'ads_type': 'Affitto',
-        'city': 'Milano'
-    }
-    process.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'idealista',
-        'category': 'case',
-        'region': 'lombardia',
-        'ads_type': 'affitto',
-        'city': 'milano'
-    }
-    process.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'wikicasa',
-        'category': 'appartamento',
-        'region': 'lombardia',
-        'ads_type': 'affitto',
-        'city': 'milano'
-    }
-    process.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'bakeca',
-        'category': 'casa',
-        'region': 'lombardia',
-        'ads_type': 'offro',
-        'city': 'milano'
-    }
-    process.crawl(HomeSpider, search_obj=search_obj)
-
-    search_obj = {
-        'name': 'subito',
-        'category': 'appartamenti',
-        'region': 'lombardia',
-        'ads_type': 'affitto',
-        'city': 'milano'
-    }
-    process.crawl(HomeSpider, search_obj=search_obj)
     process.start()
 
 
 def launch_crawlers(target):
+    with open('crawlers.json') as data_file:
+        data = json.load(data_file)
+
     if target == 'all':
         if CRAWLER_TYPE == "process":
-            launch_crawlers_as_using_process()
+            launch_crawlers_as_using_process(data)
         else:
-            launch_crawlers_as_using_runner()
+            launch_crawlers_as_using_runner(data)
     else:
+
         process = CrawlerProcess(DEFAULT_SETTINGS)
 
-        with open('crawlers.json') as data_file:
-            data = json.load(data_file)
+        for crawler in data['crawlers']:
+            if crawler['name'] == target:
+                pprint(crawler)
+                process.crawl(HomeSpider, search_obj=crawler)
+                process.start()
 
-        pprint(data['crawlers'][0])
-        process.crawl(HomeSpider, search_obj=data['crawlers'][1])
+

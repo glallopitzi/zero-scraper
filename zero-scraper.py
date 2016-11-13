@@ -1,7 +1,7 @@
 import argparse
 
+import crawler_starter
 import elastic_client
-from crawler_starter import launch_crawlers
 
 
 parser = argparse.ArgumentParser(description='Zero scraper!')
@@ -18,16 +18,17 @@ parser.add_argument('target',
 args = parser.parse_args()
 
 
-def crawl():
-    launch_crawlers(args.target)
-
 actions = {
     "create": elastic_client.create_index,
     "delete": elastic_client.delete_index,
     "reset": elastic_client.reset_index,
-    "crawl": crawl,
+    "crawl": crawler_starter.launch_crawlers,
     "health-check": elastic_client.health_check
 }
 
 if args.action:
-    actions[args.action]()
+    if args.target:
+        actions[args.action](args.target)
+    else:
+        actions[args.action]()
+

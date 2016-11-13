@@ -73,6 +73,8 @@ class DateCleanerPipeline(object):
             except:
                 print sys.exc_info()
                 item['date'] = datetime.datetime.now()
+        else:
+            item['date'] = datetime.datetime.now()
         return item
 
 class PriceCleanerPipeline(object):
