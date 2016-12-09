@@ -1,6 +1,8 @@
+import json
+
 from elasticsearch import Elasticsearch
 
-
+CONFIG_FOLDER = "config/"
 
 # # print es.indices.exists(index='scrapy')
 # # print es.count(index='scrapy')
@@ -16,21 +18,29 @@ from elasticsearch import Elasticsearch
 # #     print url
 # # print json.dumps(es.indices.analyze(index='scrapy'))
 
+es = Elasticsearch([{'host': 'local.docker.dev'}])
+
+
+def count_element():
+    print es.count(index="scrapy")
+
 def health_check():
-    es = Elasticsearch([{'host': 'local.docker.dev'}])
     print es.info()
 
+
 def reset_index():
-    es = Elasticsearch([{'host': 'local.docker.dev'}])
-    print es.indices.delete("scrapy")
-    print es.indices.create(index='scrapy', ignore=400)
+    count_element()
+    delete_index()
+    create_index()
+    count_element()
 
 
 def delete_index():
-    es = Elasticsearch([{'host': 'local.docker.dev'}])
     print es.indices.delete("scrapy")
 
 
 def create_index():
-    es = Elasticsearch([{'host': 'local.docker.dev'}])
-    print es.indices.create(index='scrapy', ignore=400)
+    with open(CONFIG_FOLDER + 'index.json') as data_file:
+        settings = json.load(data_file)
+
+    print es.indices.create(index='scrapy', body=settings, ignore=400)

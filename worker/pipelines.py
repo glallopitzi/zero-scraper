@@ -52,17 +52,20 @@ class JsonExporterPipeline(object):
 
 
 class DataCleanerPipeline(object):
-    rx = re.compile('\W+')
+    CHAR_RE = re.compile('\W+')
+    TAG_RE = re.compile(r'<[^>]+>')
 
     def process_item(self, item, spider):
         for field in item:
-            # if field == "description" or field == "title":
-            if field != "url" and field != "website" and field != "date":
+            if field == "description" or field == "title" or field == 'date' or field == 'price':
                 res = item[field]
-                res = self.rx.sub(" ", res).strip()
-                # print field + ":" + res
+                res = self.TAG_RE.sub(" ", res).strip()
+                if field == "description" or field == "title":
+                    res = self.CHAR_RE.sub(" ", res).strip()
+                    # print field + ":" + res
                 item[field] = res
         return item
+
 
 class DateCleanerPipeline(object):
     def process_item(self, item, spider):
@@ -72,10 +75,11 @@ class DateCleanerPipeline(object):
                 item['date'] = datetime.datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S")
             except:
                 print sys.exc_info()
-                item['date'] = datetime.datetime.now()
+                item['date'] = int(round(time.time() * 1000))
         else:
-            item['date'] = datetime.datetime.now()
+            item['date'] = int(round(time.time() * 1000))
         return item
+
 
 class PriceCleanerPipeline(object):
     rx = re.compile('\W+')
@@ -87,6 +91,21 @@ class PriceCleanerPipeline(object):
             clean = re.sub(r'[^0-9' + r']+', '', str(raw_price))
             value = float(clean)
             item['price'] = value
+        return item
+
+
+class GeoDataPipeline(object):
+
+    def process_item(self, item, spider):
+        raw_lat = item['lat']
+        raw_lon = item['lng']
+
+        if raw_lat != "" and raw_lon != "":
+            item['location'] = {
+                "lat": float(raw_lat),
+                "lon": float(raw_lon)
+            }
+
         return item
 
 

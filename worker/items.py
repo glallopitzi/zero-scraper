@@ -21,8 +21,9 @@ class Ad(scrapy.Item):
 class HomeAd(Ad):
     dimension = scrapy.Field()
     address = scrapy.Field()
-    lat = scrapy.Field()
-    lng = scrapy.Field()
+    zone = scrapy.Field()
+    rooms = scrapy.Field()
+    location = scrapy.Field()
 
 
 class MotorAd(Ad):
