@@ -7,7 +7,7 @@ from twisted.internet import reactor
 
 from worker.spiders.home_spider import HomeSpider
 
-CRAWLER_TYPE = "runner"  # process or runner
+CRAWLER_TYPE = "process"  # process or runner
 CONFIG_FOLDER = "config/"
 
 

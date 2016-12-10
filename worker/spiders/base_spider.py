@@ -13,8 +13,7 @@ def extract_field_given_selector(response, field_selector):
     elem = response.xpath(field_selector)
     if elem is not None and elem != []:
         try:
-            res = elem.extract_first().encode('UTF8')
-            return res
+            return elem.extract_first()
         except:
             print sys.exc_info()
             return ""
@@ -86,14 +85,6 @@ class BaseSpider(scrapy.Spider):
         for field_name in self.parser.options('item-selectors'):
             raw_field_selector = self.parser.get('item-selectors', field_name)
             to_add[field_name] = extract_field(response, raw_field_selector)
-
-            if raw_field_selector != '':
-                for field_selector in raw_field_selector.split('|'):
-                    elem = extract_field_given_selector(response, field_selector)
-                    if elem is not None and elem != '':
-                        to_add[field_name] = elem
-                        break
-
 
         raw_lat = to_add['lat']
         raw_lon = to_add['lng']

@@ -16,9 +16,7 @@ from scrapy import signals
 from scrapy.exporters import JsonItemExporter
 
 
-
 class JsonExporterPipeline(object):
-
     def __init__(self):
         self.files = {}
 
@@ -29,7 +27,6 @@ class JsonExporterPipeline(object):
         crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
         return pipeline
 
-
     def spider_opened(self, spider):
         timestr = time.strftime("%Y%m%d-%H%M%S")
         export_filename = 'exports/%s_items.%s.json' % (spider.name, timestr)
@@ -39,12 +36,10 @@ class JsonExporterPipeline(object):
         self.exporter = JsonItemExporter(file)
         self.exporter.start_exporting()
 
-
     def spider_closed(self, spider):
         self.exporter.finish_exporting()
         file = self.files.pop(spider)
         file.close()
-
 
     def process_item(self, item, spider):
         self.exporter.export_item(item)
@@ -57,13 +52,14 @@ class DataCleanerPipeline(object):
 
     def process_item(self, item, spider):
         for field in item:
-            if field == "description" or field == "title" or field == 'date' or field == 'price':
-                res = item[field]
+            # remove $nbsp; char
+            res = item[field].replace(u'\xa0', u' ')
+            if field == "description" or field == "title" or field == 'date' or field == 'price' or field == 'dimension':
                 res = self.TAG_RE.sub(" ", res).strip()
                 if field == "description" or field == "title":
                     res = self.CHAR_RE.sub(" ", res).strip()
-                    # print field + ":" + res
-                item[field] = res
+            item[field] = res.encode('UTF8')
+
         return item
 
 
@@ -94,8 +90,19 @@ class PriceCleanerPipeline(object):
         return item
 
 
-class GeoDataPipeline(object):
+class DimensionCleanerPipeline(object):
+    rx = re.compile('\W+')
 
+    def process_item(self, item, spider):
+        raw_dimension = item['dimension']
+        if raw_dimension != "":
+            clean = raw_dimension.replace("m 2", "")
+            value = float(clean)
+            item['dimension'] = value
+        return item
+
+
+class GeoDataPipeline(object):
     def process_item(self, item, spider):
         raw_lat = item['lat']
         raw_lon = item['lng']
@@ -110,7 +117,6 @@ class GeoDataPipeline(object):
 
 
 class VisitedURLStorePipeline(object):
-
     files = None
 
     def __init__(self):

@@ -20,6 +20,7 @@ class HomeSpider(BaseSpider):
         self.args = self.parse_search_obj(search_obj, kwargs)
 
         self.name = self.args['name']
+        self.max_pages = self.args['max_pages']
         self.load_config('home', self.args['name'])
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
         self.get_already_seen_urls()
@@ -27,5 +28,4 @@ class HomeSpider(BaseSpider):
 
     def parse_ads(self, response):
         to_add = self.extract_all_fields(response)
-
         yield HomeAd(to_add)

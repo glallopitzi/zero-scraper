@@ -9,22 +9,19 @@ if [ "$RUNNING" == "false" ]; then
     exit 2
 fi
 
+python zero-scraper.py --a reset
 
-
-#auto vendita milano
-#scooter vendita milano
-#playstation vendita milano
-
-#appartamento affitto milano
-#appartamento vendita milano
-
-
-scrapy crawl home_spider -a name=immobiliare -a category=appartamenti -a ads_type=affitti -a region=lombardia -a city=Milano
-scrapy crawl home_spider -a name=subito -a category=appartamenti -a ads_type=affitto -a region=lombardia -a city=milano
-scrapy crawl home_spider -a name=astegiudiziarie -a category=appartamenti -a ads_type=affitto -a region=lombardia -a city=milano
-scrapy crawl home_spider -a name=bakeca -a category=casa -a ads_type=offro -a region=lombardia -a city=milano
-scrapy crawl home_spider -a name=wikicasa -a category=appartamento -a ads_type=affitto -a region=lombardia -a city=milano
-scrapy crawl home_spider -a name=idealista -a category=case -a ads_type=affitto -a region=lombardia -a city=milano
-scrapy crawl home_spider -a name=attico -a category=appartamenti -a ads_type=vendita -a region=lombardia -a city=milano
-
-#curl -X GET -H "Cache-Control: no-cache" "http://192.168.99.100:9200/scrapy/_search?pretty" | jq ".hits.hits[]._source.url"
+python zero-scraper.py --a crawl subito
+python zero-scraper.py --a crawl idealista
+python zero-scraper.py --a crawl immobiliare
+python zero-scraper.py --a crawl trovocasa
+python zero-scraper.py --a crawl wikicasa
+python zero-scraper.py --a crawl bakeca
+python zero-scraper.py --a crawl astegiudiziarie
+python zero-scraper.py --a crawl attico
+python zero-scraper.py --a crawl toscano
+python zero-scraper.py --a crawl tecnocasa
+python zero-scraper.py --a crawl casa
+python zero-scraper.py --a crawl professionecasa
+python zero-scraper.py --a crawl tecnocasa
+python zero-scraper.py --a crawl toscano
