@@ -52,13 +52,14 @@ class DataCleanerPipeline(object):
 
     def process_item(self, item, spider):
         for field in item:
-            # remove $nbsp; char
-            res = item[field].replace(u'\xa0', u' ')
-            if field == "description" or field == "title" or field == 'date' or field == 'price' or field == 'dimension':
-                res = self.TAG_RE.sub(" ", res).strip()
-                if field == "description" or field == "title":
-                    res = self.CHAR_RE.sub(" ", res).strip()
-            item[field] = res.encode('UTF8')
+            if field != 'location':
+                # remove $nbsp; char
+                res = item[field].replace(u'\xa0', u' ')
+                if field == "description" or field == "title" or field == 'date' or field == 'price' or field == 'dimension':
+                    res = self.TAG_RE.sub(" ", res).strip()
+                    if field == "description" or field == "title":
+                        res = self.CHAR_RE.sub(" ", res).strip()
+                item[field] = res.encode('UTF8')
 
         return item
 
