@@ -4,7 +4,7 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-
+import json
 import time
 import re
 import locale
@@ -14,6 +14,36 @@ import datetime
 import sys
 from scrapy import signals
 from scrapy.exporters import JsonItemExporter
+
+
+ES_DATE_FORMAT = "%Y%m%dT%H%M%SZ"
+CONFIG_FOLDER = "config/"
+
+
+def date_parse(raw_date):
+
+    with open(CONFIG_FOLDER + 'pipeline.json') as data_file:
+        settings = json.load(data_file)
+
+        # for sr in settings['date']['smart_recognition']:
+        #     if sr['key'] in raw_date:
+        #         print "exec %s" % sr['action']
+        #         if sr['key'] == 'oggi':
+        #             pass
+
+
+        for tr in settings['date']['to_remove']:
+            raw_date = raw_date.replace(tr, "")
+
+        for p in settings['date']['pattern']:
+            try:
+                res = datetime.datetime.strptime(raw_date, p)
+                if res:
+                    print "Date found! %s" % res
+                    return res
+            except:
+                print sys.exc_info()
+
 
 
 class JsonExporterPipeline(object):
@@ -67,14 +97,14 @@ class DataCleanerPipeline(object):
 class DateCleanerPipeline(object):
     def process_item(self, item, spider):
         raw_date = item['date']
+        raw_datetime = datetime.datetime.now()
+
         if raw_date != "":
-            try:
-                item['date'] = datetime.datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S")
-            except:
-                print sys.exc_info()
-                item['date'] = int(round(time.time() * 1000))
-        else:
-            item['date'] = int(round(time.time() * 1000))
+            aux_date = date_parse(raw_date)
+            if aux_date:
+                raw_datetime = aux_date
+
+        item['date'] = raw_datetime.strftime(ES_DATE_FORMAT)
         return item
 
 
@@ -100,20 +130,6 @@ class DimensionCleanerPipeline(object):
             clean = raw_dimension.replace("m 2", "")
             value = float(clean)
             item['dimension'] = value
-        return item
-
-
-class GeoDataPipeline(object):
-    def process_item(self, item, spider):
-        raw_lat = item['lat']
-        raw_lon = item['lng']
-
-        if raw_lat != "" and raw_lon != "":
-            item['location'] = {
-                "lat": float(raw_lat),
-                "lon": float(raw_lon)
-            }
-
         return item
 
 
