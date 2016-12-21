@@ -1,8 +1,6 @@
-import json
+import config_loader
 
 from elasticsearch import Elasticsearch
-
-CONFIG_FOLDER = "config/"
 
 # # print es.indices.exists(index='scrapy')
 # # print es.count(index='scrapy')
@@ -40,7 +38,5 @@ def delete_index():
 
 
 def create_index():
-    with open(CONFIG_FOLDER + 'index.json') as data_file:
-        settings = json.load(data_file)
-
-    print es.indices.create(index='scrapy', body=settings, ignore=400)
+    mappings = config_loader.load_json_from_file('index')
+    print es.indices.create(index='scrapy', body=mappings, ignore=400)

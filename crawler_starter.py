@@ -1,5 +1,6 @@
 import json
 from pprint import pprint
+import config_loader
 
 from scrapy.crawler import CrawlerRunner, CrawlerProcess
 from scrapy.utils.log import configure_logging
@@ -8,7 +9,6 @@ from twisted.internet import reactor
 from worker.spiders.home_spider import HomeSpider
 
 CRAWLER_TYPE = "process"  # process or runner
-CONFIG_FOLDER = "config/"
 
 
 def launch_crawlers_as_using_runner(target, data, settings):
@@ -41,11 +41,8 @@ def launch_crawlers_as_using_process(target, data, settings):
 
 
 def launch_crawlers(target):
-    with open(CONFIG_FOLDER + 'crawlers/crawlers.json') as data_file:
-        data = json.load(data_file)
-
-    with open(CONFIG_FOLDER + 'settings.json') as data_file:
-        settings = json.load(data_file)
+    data = config_loader.load_json_from_file('crawlers')
+    settings = config_loader.load_json_from_file('settings')
 
     if CRAWLER_TYPE == "process":
         launch_crawlers_as_using_process(target, data, settings)
