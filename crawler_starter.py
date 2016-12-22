@@ -1,14 +1,19 @@
-import json
-from pprint import pprint
 import config_loader
 
 from scrapy.crawler import CrawlerRunner, CrawlerProcess
 from scrapy.utils.log import configure_logging
 from twisted.internet import reactor
-
+from worker.spiders.generic_spider import GenericSpider
 from worker.spiders.home_spider import HomeSpider
+from worker.spiders.motor_spider import MotorSpider
 
 CRAWLER_TYPE = "process"  # process or runner
+
+items_lookup_table = {
+    "home": HomeSpider,
+    "motor": MotorSpider,
+    "generic": GenericSpider
+}
 
 
 def launch_crawlers_as_using_runner(target, data, settings):
@@ -31,20 +36,21 @@ def launch_crawlers_as_using_runner(target, data, settings):
 def launch_crawlers_as_using_process(target, data, settings):
     process = CrawlerProcess(settings['spider'])
 
+
     for crawler in data['crawlers']:
         if target != 'all':
             if target == crawler['name']:
-                process.crawl(HomeSpider, search_obj=crawler)
+                process.crawl(items_lookup_table[config_loader.get_items_type()], search_obj=crawler)
         else:
-            process.crawl(HomeSpider, search_obj=crawler)
+            process.crawl(items_lookup_table[config_loader.get_items_type()], search_obj=crawler)
     process.start()
 
 
 def launch_crawlers(target):
-    data = config_loader.load_json_from_file('crawlers')
-    settings = config_loader.load_json_from_file('settings')
+    crawlers_data = config_loader.load_json_from_file('crawlers')
+    settings_data = config_loader.load_json_from_file('settings')
 
     if CRAWLER_TYPE == "process":
-        launch_crawlers_as_using_process(target, data, settings)
+        launch_crawlers_as_using_process(target, crawlers_data, settings_data)
     else:
-        launch_crawlers_as_using_runner(target, data, settings)
+        launch_crawlers_as_using_runner(target, crawlers_data, settings_data)

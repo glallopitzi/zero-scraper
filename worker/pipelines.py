@@ -15,34 +15,26 @@ import sys
 from scrapy import signals
 from scrapy.exporters import JsonItemExporter
 
+import config_loader
 
 ES_DATE_FORMAT = "%Y%m%dT%H%M%SZ"
 CONFIG_FOLDER = "config/"
 
 
 def date_parse(raw_date):
+    settings = config_loader.load_json_from_file('pipeline')
 
-    with open(CONFIG_FOLDER + 'pipeline.json') as data_file:
-        settings = json.load(data_file)
+    for tr in settings['date']['to_remove']:
+        raw_date = raw_date.replace(tr, "")
 
-        # for sr in settings['date']['smart_recognition']:
-        #     if sr['key'] in raw_date:
-        #         print "exec %s" % sr['action']
-        #         if sr['key'] == 'oggi':
-        #             pass
-
-
-        for tr in settings['date']['to_remove']:
-            raw_date = raw_date.replace(tr, "")
-
-        for p in settings['date']['pattern']:
-            try:
-                res = datetime.datetime.strptime(raw_date, p)
-                if res:
-                    print "Date found! %s" % res
-                    return res
-            except:
-                print sys.exc_info()
+    for p in settings['date']['pattern']:
+        try:
+            res = datetime.datetime.strptime(raw_date, p)
+            if res:
+                print "Date found! %s" % res
+                return res
+        except:
+            print sys.exc_info()
 
 
 

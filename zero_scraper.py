@@ -1,5 +1,4 @@
 import argparse
-
 import crawler_starter
 import elastic_client
 
@@ -9,6 +8,11 @@ parser = argparse.ArgumentParser(description='Zero scraper!')
 parser.add_argument('--action', '-a',
                     help='choose your action',
                     choices=['create', 'delete', 'reset', 'crawl', 'health-check'],
+                    required=True)
+
+parser.add_argument('--category', '-c',
+                    help='choose your category',
+                    choices=['home', 'motor', 'generic'],
                     required=True)
 
 parser.add_argument('target',

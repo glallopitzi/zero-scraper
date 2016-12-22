@@ -6,6 +6,7 @@ from string import Template
 import scrapy
 from elasticsearch import Elasticsearch
 
+import config_loader
 from worker.items import Ad
 
 
@@ -70,10 +71,7 @@ class BaseSpider(scrapy.Spider):
         yield Ad(to_add)
 
     def load_config(self, spider_type, name):
-        self.parser = RawConfigParser()
-        config_filename = "config/%s/%s.cfg" % (spider_type, name)
-        self.parser.read(config_filename)
-        self.logger.info('Config %s for type %s loaded from %s, found %s sections' % (config_filename, spider_type, self.name, len(self.parser.sections())))
+        self.parser = config_loader.load_config(name)
 
     def extract_all_fields(self, response):
 
