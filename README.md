@@ -1,5 +1,6 @@
 ## INTRO ##
-This is a configurable scraper (based on python Scrapy library) to scrape info from various websites.
+
+Simple configurable Scrapy based application to scrape structured data from various websites.
 
 ## How to run ##
 From command line, run the following command:
@@ -14,8 +15,10 @@ run your docker elk instance and enable the related pipeline.
 
 ## TODO ##
 * handle order result on first page parameter
-
-* index list of crawled page items (to prevent duplicates)
 * better handling for pagination (ex: wikicasa with p parameter instead of links)
 * add more info on crawled items
-* define ES index
+* define ES index mapping
+
+
+### Done ###
+* index list of crawled page items (to prevent duplicates)
