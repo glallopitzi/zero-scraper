@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import re
 import sys
 from ConfigParser import RawConfigParser
 from string import Template
@@ -59,7 +61,6 @@ class BaseSpider(scrapy.Spider):
                 self.logger.debug("URL %s already crawled" % url_string)
 
     def parse_ads(self, response):
-
         to_add = {
             'url': response.url,
             'website': self.parser.get('general', 'allowed_domains'),
@@ -72,6 +73,18 @@ class BaseSpider(scrapy.Spider):
 
     def load_config(self, spider_type, name):
         self.parser = config_loader.load_config(name)
+
+    def save_html_page(self, response):
+
+        newpath = '/Users/gianc/tmp/zero-scraper/crawled/%s' % self.name
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
+        filename = re.sub('[^A-Za-z0-9]+', '', response.url)
+
+        filepath = "/Users/gianc/tmp/zero-scraper/crawled/%s/%s" % (self.name, filename)
+        with open(filepath, 'w') as f:
+            f.write(response.body)
 
     def extract_all_fields(self, response):
 

@@ -27,5 +27,6 @@ class HomeSpider(BaseSpider):
         self.start_urls = [self.get_start_urls_from_template()]
 
     def parse_ads(self, response):
+        self.save_html_page(response)
         to_add = self.extract_all_fields(response)
         yield HomeAd(to_add)
