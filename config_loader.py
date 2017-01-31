@@ -15,8 +15,8 @@ ITEMS_TYPE = "home" # home or generic or motor
 
 settings_lookup_table = {
     "index": ES_FOLDER,
-    "settings": ES_FOLDER,
-    "pipeline": ES_FOLDER,
+    "settings": SCRAPER_FOLDER,
+    "pipeline": SCRAPER_FOLDER,
     "crawlers": SCRAPER_FOLDER
 }
 

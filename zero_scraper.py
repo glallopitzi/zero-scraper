@@ -26,8 +26,8 @@ actions = {
     "create": elastic_client.create_index,
     "delete": elastic_client.delete_index,
     "reset": elastic_client.reset_index,
-    "crawl": crawler_starter.launch_crawlers,
-    "health-check": elastic_client.health_check
+    "health-check": elastic_client.health_check,
+    "crawl": crawler_starter.launch_crawlers
 }
 
 if args.action:

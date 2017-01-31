@@ -36,7 +36,6 @@ def launch_crawlers_as_using_runner(target, data, settings):
 def launch_crawlers_as_using_process(target, data, settings):
     process = CrawlerProcess(settings['spider'])
 
-
     for crawler in data['crawlers']:
         if target != 'all':
             if target == crawler['name']:
