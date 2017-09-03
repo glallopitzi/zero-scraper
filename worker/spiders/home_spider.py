@@ -23,7 +23,10 @@ class HomeSpider(BaseSpider):
         self.max_pages = self.args['max_pages']
         self.load_config('home', self.args['name'])
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
-        self.get_already_seen_urls()
+
+        ## prevent elk querying
+        # self.get_already_seen_urls()
+
         self.start_urls = [self.get_start_urls_from_template()]
 
     def parse_ads(self, response):
