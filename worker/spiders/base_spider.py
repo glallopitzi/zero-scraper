@@ -75,15 +75,16 @@ class BaseSpider(scrapy.Spider):
         self.parser = config_loader.load_config(name)
 
     def save_html_page(self, response):
+        spider_crawled_folder = "%s/tmp/zero-scraper/crawled/%s" % (os.environ['HOME'], self.name)
 
-        newpath = '/Users/gianc/tmp/zero-scraper/crawled/%s' % self.name
-        if not os.path.exists(newpath):
-            os.makedirs(newpath)
+        if not os.path.exists(spider_crawled_folder):
+            os.makedirs(spider_crawled_folder)
 
-        filename = re.sub('[^A-Za-z0-9]+', '', response.url)
+        filename_tmp = re.sub('-', '__', response.url)
+        filename = re.sub('[^A-Za-z0-9]+', '_', filename_tmp)
+        file_path = "%s/%s" % (spider_crawled_folder, filename)
 
-        filepath = "/Users/gianc/tmp/zero-scraper/crawled/%s/%s" % (self.name, filename)
-        with open(filepath, 'w') as f:
+        with open(file_path, 'w') as f:
             f.write(response.body)
 
     def extract_all_fields(self, response):
