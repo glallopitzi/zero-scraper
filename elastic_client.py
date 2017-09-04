@@ -16,7 +16,7 @@ from elasticsearch import Elasticsearch
 # #     print url
 # # print json.dumps(es.indices.analyze(index='scrapy'))
 
-es = Elasticsearch([{'host': 'local.docker.dev'}])
+es = Elasticsearch([{'host': 'localhost'}])
 
 
 def count_element():
