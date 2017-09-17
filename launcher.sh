@@ -9,19 +9,21 @@ if [ "$RUNNING" == "false" ]; then
     exit 2
 fi
 
-python zero-scraper.py --a reset
+python zero_scraper.py -a reset -c home
 
-python zero-scraper.py --a crawl subito
-python zero-scraper.py --a crawl idealista
-python zero-scraper.py --a crawl immobiliare
-python zero-scraper.py --a crawl trovocasa
-python zero-scraper.py --a crawl wikicasa
-python zero-scraper.py --a crawl bakeca
-python zero-scraper.py --a crawl astegiudiziarie
-python zero-scraper.py --a crawl attico
-python zero-scraper.py --a crawl toscano
-python zero-scraper.py --a crawl tecnocasa
-python zero-scraper.py --a crawl casa
-python zero-scraper.py --a crawl professionecasa
-python zero-scraper.py --a crawl tecnocasa
-python zero-scraper.py --a crawl toscano
+python zero_scraper.py -a crawl -c home subito
+python zero_scraper.py -a crawl -c home idealista
+python zero_scraper.py -a crawl -c home immobiliare
+python zero_scraper.py -a crawl -c home homepal
+
+python zero_scraper.py -a crawl -c home trovocasa
+python zero_scraper.py -a crawl -c home wikicasa
+python zero_scraper.py -a crawl -c home bakeca
+python zero_scraper.py -a crawl -c home astegiudiziarie
+python zero_scraper.py -a crawl -c home attico
+python zero_scraper.py -a crawl -c home toscano
+python zero_scraper.py -a crawl -c home tecnocasa
+python zero_scraper.py -a crawl -c home casa
+python zero_scraper.py -a crawl -c home professionecasa
+python zero_scraper.py -a crawl -c home tecnocasa
+python zero_scraper.py -a crawl -c home toscano

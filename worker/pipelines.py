@@ -20,14 +20,14 @@ import config_loader
 ES_DATE_FORMAT = "%Y%m%dT%H%M%SZ"
 CONFIG_FOLDER = "config/"
 
+pipeline_settings = config_loader.load_json_from_file('pipeline')
+
 
 def date_parse(raw_date):
-    settings = config_loader.load_json_from_file('pipeline')
-
-    for tr in settings['date']['to_remove']:
+    for tr in pipeline_settings['date']['to_remove']:
         raw_date = raw_date.replace(tr, "")
 
-    for p in settings['date']['pattern']:
+    for p in pipeline_settings['date']['pattern']:
         try:
             res = datetime.datetime.strptime(raw_date, p)
             if res:
@@ -35,7 +35,6 @@ def date_parse(raw_date):
                 return res
         except:
             print sys.exc_info()
-
 
 
 class JsonExporterPipeline(object):
@@ -77,9 +76,9 @@ class DataCleanerPipeline(object):
             if field != 'location':
                 # remove $nbsp; char
                 res = item[field].replace(u'\xa0', u' ')
-                if field == "description" or field == "title" or field == 'date' or field == 'price' or field == 'dimension':
+                if field in ['description', 'title', 'date', 'price', 'dimension', 'author']:
                     res = self.TAG_RE.sub(" ", res).strip()
-                    if field == "description" or field == "title":
+                    if field in ['description', 'title', 'author']:
                         res = self.CHAR_RE.sub(" ", res).strip()
                 item[field] = res.encode('UTF8')
 
@@ -119,8 +118,16 @@ class DimensionCleanerPipeline(object):
     def process_item(self, item, spider):
         raw_dimension = item['dimension']
         if raw_dimension != "":
-            clean = raw_dimension.replace("m 2", "")
-            value = float(clean)
+
+            for tr in pipeline_settings['dimension']['to_remove']:
+                raw_dimension = raw_dimension.replace(tr, "")
+
+            clean = raw_dimension
+
+            try:
+                value = float(clean)
+            except:
+                value = raw_dimension
             item['dimension'] = value
         return item
 

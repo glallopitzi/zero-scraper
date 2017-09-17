@@ -118,7 +118,7 @@ class BaseSpider(scrapy.Spider):
         return url_string
 
     def get_already_seen_urls(self):
-        es = Elasticsearch([{'host': 'local.docker.dev'}])
+        es = Elasticsearch([{'host': 'localhost'}])
         res = es.search(
             index='scrapy',
             filter_path=['hits.hits._source.url'],

@@ -25,7 +25,7 @@ class HomeSpider(BaseSpider):
         self.allowed_domains = [self.parser.get('general', 'allowed_domains')]
 
         ## prevent elk querying
-        # self.get_already_seen_urls()
+        self.get_already_seen_urls()
 
         self.start_urls = [self.get_start_urls_from_template()]
 
