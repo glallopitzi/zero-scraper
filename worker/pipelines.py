@@ -24,17 +24,18 @@ pipeline_settings = config_loader.load_json_from_file('pipeline')
 
 
 def date_parse(raw_date):
-    for tr in pipeline_settings['date']['to_remove']:
-        raw_date = raw_date.replace(tr, "")
+    try:
+        for tr in pipeline_settings['date']['to_remove']:
+            raw_date = raw_date.replace(tr, "")
 
-    for p in pipeline_settings['date']['pattern']:
-        try:
+        for p in pipeline_settings['date']['pattern']:
             res = datetime.datetime.strptime(raw_date, p)
             if res:
                 print "Date found! %s" % res
                 return res
-        except:
-            print sys.exc_info()
+    except:
+        print sys.exc_info()
+
 
 
 class JsonExporterPipeline(object):
@@ -76,9 +77,9 @@ class DataCleanerPipeline(object):
             if field != 'location':
                 # remove $nbsp; char
                 res = item[field].replace(u'\xa0', u' ')
-                if field in ['description', 'title', 'date', 'price', 'dimension', 'author']:
+                if field in ['description', 'title', 'date', 'price', 'dimension', 'author', 'city', 'address']:
                     res = self.TAG_RE.sub(" ", res).strip()
-                    if field in ['description', 'title', 'author']:
+                    if field in ['description', 'title', 'author', 'dimension']:
                         res = self.CHAR_RE.sub(" ", res).strip()
                 item[field] = res.encode('UTF8')
 
