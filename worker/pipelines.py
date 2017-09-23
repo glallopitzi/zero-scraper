@@ -81,7 +81,10 @@ class DataCleanerPipeline(object):
                     res = self.TAG_RE.sub(" ", res).strip()
                     if field in ['description', 'title', 'author', 'dimension']:
                         res = self.CHAR_RE.sub(" ", res).strip()
-                item[field] = res.encode('UTF8')
+                try:
+                    item[field] = res.encode('UTF8')
+                except:
+                    item[field] = 'ENC_ERROR'
 
         return item
 
@@ -110,6 +113,19 @@ class PriceCleanerPipeline(object):
             clean = re.sub(r'[^0-9' + r']+', '', str(raw_price))
             value = float(clean)
             item['price'] = value
+        return item
+
+
+class CityCleanerPipeline(object):
+    def process_item(self, item, spider):
+        raw_city = item['city']
+        if raw_city != "":
+            try:
+                for tr in pipeline_settings['city']['to_remove']:
+                    raw_city = raw_city.replace(tr, "")
+                item['city'] = raw_city
+            except:
+                item['city'] = 'STRIP_ERROR'
         return item
 
 
