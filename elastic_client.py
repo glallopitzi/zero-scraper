@@ -22,15 +22,20 @@ es = Elasticsearch([{'host': 'localhost'}])
 def count_element():
     print es.count(index="scrapy")
 
+
 def health_check():
     print es.info()
 
 
-def reset_index():
+def reset_index(is_hard=False):
     count_element()
     delete_index()
     create_index()
     count_element()
+
+    if is_hard:
+        # TODO delete crawled pages also
+        pass
 
 
 def delete_index():

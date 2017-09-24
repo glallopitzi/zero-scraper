@@ -37,7 +37,6 @@ def date_parse(raw_date):
         print sys.exc_info()
 
 
-
 class JsonExporterPipeline(object):
     def __init__(self):
         self.files = {}
@@ -77,14 +76,18 @@ class DataCleanerPipeline(object):
             if field != 'location':
                 # remove $nbsp; char
                 res = item[field].replace(u'\xa0', u' ')
-                if field in ['description', 'title', 'date', 'price', 'dimension', 'author', 'city', 'address']:
+
+                if field in ['description', 'title', 'date', 'price', 'dimension', 'author', 'city', 'address', 'zone']:
                     res = self.TAG_RE.sub(" ", res).strip()
-                    if field in ['description', 'title', 'author', 'dimension']:
-                        res = self.CHAR_RE.sub(" ", res).strip()
+
+                if field in ['description', 'title', 'author', 'dimension', 'zone']:
+                    res = self.CHAR_RE.sub(" ", res).strip()
+
                 try:
                     item[field] = res.encode('UTF8')
                 except:
-                    item[field] = 'ENC_ERROR'
+                    print sys.exc_info()
+                    item[field] = 'ENCODING_ERROR'
 
         return item
 
@@ -109,16 +112,19 @@ class PriceCleanerPipeline(object):
     def process_item(self, item, spider):
         raw_price = item['price']
         if raw_price != "":
-            # strip "al mese" related
-            clean = re.sub(r'[^0-9' + r']+', '', str(raw_price))
-            value = float(clean)
-            item['price'] = value
+            try:
+                clean = re.sub(r'[^0-9' + r']+', '', str(raw_price))
+                value = float(clean)
+                item['price'] = value
+            except:
+                item['price'] = 0
         return item
 
 
 class CityCleanerPipeline(object):
     def process_item(self, item, spider):
         raw_city = item['city']
+        raw_address = item['address']
         if raw_city != "":
             try:
                 for tr in pipeline_settings['city']['to_remove']:
@@ -126,6 +132,11 @@ class CityCleanerPipeline(object):
                 item['city'] = raw_city
             except:
                 item['city'] = 'STRIP_ERROR'
+
+        # TODO try to get city from address
+        if raw_address != "":
+            pass
+
         return item
 
 
@@ -139,13 +150,38 @@ class DimensionCleanerPipeline(object):
             for tr in pipeline_settings['dimension']['to_remove']:
                 raw_dimension = raw_dimension.replace(tr, "")
 
-            clean = raw_dimension
-
             try:
-                value = float(clean)
+                item['dimension'] = float(raw_dimension)
             except:
-                value = raw_dimension
-            item['dimension'] = value
+                item['dimension'] = 0
+
+        return item
+
+
+class ZoneCleanerPipeline(object):
+    CHAR_RE = re.compile('\W+')
+
+    def process_item(self, item, spider):
+        raw_zone = item['zone']
+        raw_address = item['address']
+        if raw_zone != "":
+            try:
+                for tr in pipeline_settings['zone']['to_remove']:
+                    raw_zone = raw_zone.replace(tr, "")
+                item['zone'] = raw_zone
+            except:
+                item['zone'] = 'STRIP_ERROR'
+
+        # TODO try to get zone from address
+        elif raw_address != "" and "\n" in raw_address:
+            try:
+                raw_address_splitted = raw_address.split("\n")
+                item['address'] = raw_address_splitted[0]
+                # item['zone'] = raw_address_splitted[1].replace('-', '').strip()
+                item['zone'] = self.CHAR_RE.sub(" ", raw_address_splitted[1]).strip()
+            except:
+                print sys.exc_info()
+
         return item
 
 
