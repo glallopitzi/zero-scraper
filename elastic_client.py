@@ -45,3 +45,7 @@ def delete_index():
 def create_index():
     mappings = config_loader.load_json_from_file('index')
     print es.indices.create(index='scrapy', body=mappings, ignore=400)
+
+
+if __name__ == '__main__':
+    create_index()

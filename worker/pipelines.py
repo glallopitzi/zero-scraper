@@ -185,6 +185,20 @@ class ZoneCleanerPipeline(object):
         return item
 
 
+class TagsPipeline(object):
+
+    def process_item(self, item, spider):
+        try:
+            for field in item:
+                if field in ['description', 'title', 'city', 'zone']:
+                    value = item[field]
+                    # TODO use ntlk or es to tokenize etc..?
+        except:
+            print sys.exc_info()
+
+        return item
+
+
 class VisitedURLStorePipeline(object):
     files = None
 
