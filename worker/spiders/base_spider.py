@@ -123,7 +123,7 @@ class BaseSpider(scrapy.Spider):
             index='scrapy',
             filter_path=['hits.hits._source.url'],
             q='website:' + self.parser.get('general', 'allowed_domains'),
-            size=1000
+            size=10000
         )
         if res:
             for elem in res['hits']['hits']:

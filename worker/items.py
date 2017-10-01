@@ -24,6 +24,7 @@ class HomeAd(Ad):
     address = scrapy.Field()
     zone = scrapy.Field()
     rooms = scrapy.Field()
+    floor = scrapy.Field()
     city = scrapy.Field()
     location = scrapy.Field()
 

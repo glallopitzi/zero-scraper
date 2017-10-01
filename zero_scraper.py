@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(description='Zero scraper!')
 
 parser.add_argument('--action', '-a',
                     help='choose your action',
-                    choices=['create', 'delete', 'reset', 'crawl', 'health-check'],
+                    choices=['create', 'delete', 'reset', 'search', 'health-check', 'crawl'],
                     required=True)
 
 parser.add_argument('--category', '-c',
@@ -27,6 +27,7 @@ actions = {
     "delete": elastic_client.delete_index,
     "reset": elastic_client.reset_index,
     "health-check": elastic_client.health_check,
+    "search": elastic_client.search,
     "crawl": crawler_starter.launch_crawlers
 }
 

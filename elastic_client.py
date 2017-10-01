@@ -27,6 +27,10 @@ def health_check():
     print es.info()
 
 
+def search():
+    pass
+
+
 def reset_index(is_hard=False):
     count_element()
     delete_index()
