@@ -17,7 +17,8 @@ settings_lookup_table = {
     "index": ES_FOLDER,
     "settings": SCRAPER_FOLDER,
     "pipeline": SCRAPER_FOLDER,
-    "crawlers": SCRAPER_FOLDER
+    "crawlers": SCRAPER_FOLDER,
+    "search_body": ES_FOLDER
 }
 
 def set_items_type(category):

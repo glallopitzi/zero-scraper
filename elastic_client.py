@@ -28,7 +28,8 @@ def health_check():
 
 
 def search():
-    pass
+    search_body = config_loader.load_json_from_file('search_body')
+    print es.search(index='scrapy', doc_type='home', body=search_body)
 
 
 def reset_index(is_hard=False):
@@ -52,4 +53,4 @@ def create_index():
 
 
 if __name__ == '__main__':
-    create_index()
+    search()
