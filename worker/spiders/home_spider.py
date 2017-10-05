@@ -1,3 +1,5 @@
+import logging
+
 from worker.items import HomeAd
 from worker.spiders.base_spider import BaseSpider
 
@@ -9,6 +11,8 @@ class HomeSpider(BaseSpider):
     args = None
     max_pages = 0
     already_seen_urls = []
+
+    logger = logging.getLogger('zero_logger')
 
     custom_settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
@@ -30,6 +34,8 @@ class HomeSpider(BaseSpider):
         self.start_urls = [self.get_start_urls_from_template()]
 
     def parse_ads(self, response):
+        self.logger.info('Parse function called on %s', response.url)
+
         self.save_html_page(response)
         to_add = self.extract_all_fields(response)
         yield HomeAd(to_add)
