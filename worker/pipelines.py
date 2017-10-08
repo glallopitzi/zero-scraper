@@ -67,6 +67,20 @@ class JsonExporterPipeline(object):
         return item
 
 
+class JsonWriterPipeline(object):
+
+    def open_spider(self, spider):
+        self.file = open('items.jl', 'w')
+
+    def close_spider(self, spider):
+        self.file.close()
+
+    def process_item(self, item, spider):
+        line = json.dumps(dict(item)) + "\n"
+        self.file.write(line)
+        return item
+
+
 class DataCleanerPipeline(object):
     CHAR_RE = re.compile('\W+')
     TAG_RE = re.compile(r'<[^>]+>')
@@ -75,8 +89,8 @@ class DataCleanerPipeline(object):
         for field in item:
             if field != 'location':
                 # remove $nbsp; char
-                res = item[field].replace(u'\xa0', u' ')
-
+                # res = item[field].replace(u'\xa0', u' ')
+                res = item[field]
                 if field in ['description', 'title', 'date', 'price', 'dimension', 'author', 'city', 'address', 'zone']:
                     res = self.TAG_RE.sub(" ", res).strip()
 
@@ -84,7 +98,8 @@ class DataCleanerPipeline(object):
                     res = self.CHAR_RE.sub(" ", res).strip()
 
                 try:
-                    item[field] = res.encode('UTF8')
+                    # item[field] = res.encode('UTF8', errors='ignore')
+                    item[field] = res
                 except:
                     print sys.exc_info()
                     item[field] = 'ENCODING_ERROR'
@@ -113,7 +128,7 @@ class PriceCleanerPipeline(object):
         raw_price = item['price']
         if raw_price != "":
             try:
-                clean = re.sub(r'[^0-9' + r']+', '', str(raw_price))
+                clean = re.sub(r'[^0-9' + r']+', '', raw_price)
                 value = float(clean)
                 item['price'] = value
             except:
