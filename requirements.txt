@@ -1,4 +1,4 @@
 ZeroScraper
 elasticsearch==2.4.0
 Scrapy==1.2.0
-ScrapyElasticSearch==0.8.5
+ScrapyElasticSearch==0.9.0
