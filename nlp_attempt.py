@@ -48,6 +48,7 @@ from nltk.tokenize import word_tokenize
 def tokenize(to_be_tokenized):
     return word_tokenize(to_be_tokenized)
 
+
 def nltk_stem_hapaxes(tokens):
     """
     Takes a list of tokens and returns a list of the word
@@ -58,13 +59,14 @@ def nltk_stem_hapaxes(tokens):
         return None
 
     # Apply NLTK's Snowball stemmer algorithm to tokens:
-    stemmer = SnowballStemmer("english")
+    stemmer = SnowballStemmer("italian")
     stems = [stemmer.stem(token) for token in tokens]
 
     # Filter down to hapaxes:
     counts = nltk.FreqDist(stems)
     hapaxes = counts.hapaxes()
     return hapaxes
+
 
 def nltk_lemma_hapaxes(tokens):
     """
@@ -80,14 +82,15 @@ def nltk_lemma_hapaxes(tokens):
 
     # Convert our Treebank-style tags to WordNet-style tags.
     tagged = [(word, pt_to_wn(tag))
-                     for (word, tag) in tagged]
+              for (word, tag) in tagged]
 
     # Lemmatize:
     lemmer = WordNetLemmatizer()
     lemmas = [lemmer.lemmatize(token, pos)
-                     for (token, pos) in tagged]
+              for (token, pos) in tagged]
 
     return nltk_stem_hapaxes(lemmas)
+
 
 def pt_to_wn(pos):
     """
@@ -122,6 +125,26 @@ def pt_to_wn(pos):
 
     return tag
 
+
+from nltk.corpus import stopwords
+
+
+def get_tags(text):
+    tokens = word_tokenize(text, language='italian')
+
+    italian_stop_words = stopwords.words('italian')
+    new_list = [token for token in tokens if token not in italian_stop_words]
+
+    stemmer = SnowballStemmer("italian")
+    stems = [stemmer.stem(item) for item in new_list]
+    vip_stems = Counter(stems).most_common(5)
+    vip_tokens = [token for token, value in Counter(new_list).most_common(5)]
+
+    return tokens
+
+
+#
+# stopwords.fileids()
 if __name__ == '__main__':
     source = """
     The Natural History Museum is in the bustling section of South Kensington, popular with both Londoners and tourists. The area was cordoned off Saturday by heavily armed police, according to video posted on social media. Helicopters buzzed overhead as ambulances rushed to the scene on Exhibition Road.
@@ -134,4 +157,3 @@ if __name__ == '__main__':
     # print(res)
     res = nltk_lemma_hapaxes(f)
     print(res)
-

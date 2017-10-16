@@ -16,12 +16,21 @@ from scrapy import signals
 from scrapy.exporters import JsonItemExporter
 
 import config_loader
+from nlp_attempt import get_tags
 
 ES_DATE_FORMAT = "%Y%m%dT%H%M%SZ"
 CONFIG_FOLDER = "config/"
 
 pipeline_settings = config_loader.load_json_from_file('pipeline')
 
+
+def parse_tags(tokens):
+    tags = []
+    for tr in pipeline_settings['tags']['to_find']:
+        if tr in tokens:
+            tags.append(tr)
+
+    return tags
 
 def date_parse(raw_date):
     try:
@@ -204,10 +213,12 @@ class TagsPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            for field in item:
-                if field in ['description', 'title', 'city', 'zone']:
-                    value = item[field]
-                    # TODO use ntlk or es to tokenize etc..?
+            if item['description'] is not "":
+                item['tags'] = parse_tags(get_tags(item['description']))
+
+            elif item['title'] is not "":
+                item['tags'] = get_tags(item['title'])
+
         except:
             print sys.exc_info()
 
