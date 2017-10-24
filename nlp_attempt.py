@@ -14,6 +14,10 @@ from collections import Counter
 # The standard python regular expression module:
 import re
 
+import collections
+
+from worker.items import HomeAd
+
 try:
     # Import NLTK if it is installed
     import nltk
@@ -21,6 +25,7 @@ try:
     # This imports NLTK's implementation of the Snowball
     # stemmer algorithm
     from nltk.stem.snowball import SnowballStemmer
+    from nltk.util import ngrams
 
     # NLTK's interface to the WordNet lemmatizer
     from nltk.stem.wordnet import WordNetLemmatizer
@@ -128,23 +133,58 @@ def pt_to_wn(pos):
 
 from nltk.corpus import stopwords
 
+italian_stop_words = stopwords.words('italian')
+stemmer_it = SnowballStemmer('italian')
 
-def get_tags(text):
-    tokens = word_tokenize(text, language='italian')
 
-    italian_stop_words = stopwords.words('italian')
-    new_list = [token for token in tokens if token not in italian_stop_words]
+def get_bigrams(tokens):
+    return [bigram for bigram in nltk.bigrams(tokens)]
 
-    stemmer = SnowballStemmer("italian")
-    stems = [stemmer.stem(item) for item in new_list]
-    vip_stems = Counter(stems).most_common(5)
-    vip_tokens = [token for token, value in Counter(new_list).most_common(5)]
 
+def get_trigrams(tokens):
+    return [trigram for trigram in nltk.trigrams(tokens)]
+
+
+def get_tokens(text, language='italian'):
+    tokens = word_tokenize(text, language=language)
     return tokens
 
 
-#
-# stopwords.fileids()
+def get_stems(tokens):
+    stems = [stemmer_it.stem(item) for item in tokens]
+    return stems
+
+
+def remove_stop_words(tokens):
+    new_list = [token for token in tokens if token not in italian_stop_words]
+    return new_list
+
+
+def get_tags(text, language='italian'):
+    tokens = get_tokens(text, language)
+    cleaned_tokens = remove_stop_words(tokens)
+    return cleaned_tokens
+
+
+def get_tags_from_item(item):
+    tokenized_item = {}
+    item_token_list = []
+
+    tokenized_description = get_tokens(item['description'])
+    # tokenized_description_bigrams = get_bigrams(tokenized_description)
+    # tokenized_description_trigrams = get_trigrams(tokenized_description)
+
+    item_token_list = remove_stop_words(tokenized_description)
+    item_token_list_bigrams = get_bigrams(item_token_list)
+    item_token_list_trigrams = get_trigrams(item_token_list)
+
+    return {
+        'tokens': item_token_list,
+        'bigrams': item_token_list_bigrams,
+        'trigrams': item_token_list_trigrams,
+    }
+
+
 if __name__ == '__main__':
     source = """
     The Natural History Museum is in the bustling section of South Kensington, popular with both Londoners and tourists. The area was cordoned off Saturday by heavily armed police, according to video posted on social media. Helicopters buzzed overhead as ambulances rushed to the scene on Exhibition Road.

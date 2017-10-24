@@ -16,7 +16,7 @@ from scrapy import signals
 from scrapy.exporters import JsonItemExporter
 
 import config_loader
-from nlp_attempt import get_tags
+from nlp_attempt import get_tags, get_tags_from_item
 
 ES_DATE_FORMAT = "%Y%m%dT%H%M%SZ"
 CONFIG_FOLDER = "config/"
@@ -24,13 +24,20 @@ CONFIG_FOLDER = "config/"
 pipeline_settings = config_loader.load_json_from_file('pipeline')
 
 
-def parse_tags(tokens):
+def parse_tags(item):
+    tags_dict = get_tags_from_item(item)
+
     tags = []
     for tr in pipeline_settings['tags']['to_find']:
-        if tr in tokens:
+        if tr in tags_dict['tokens']:
+            tags.append(tr)
+
+    for tr in pipeline_settings['tags']['to_find_bigrams']:
+        if tuple(tr.split()) in tags_dict['bigrams']:
             tags.append(tr)
 
     return tags
+
 
 def date_parse(raw_date):
     try:
@@ -77,7 +84,6 @@ class JsonExporterPipeline(object):
 
 
 class JsonWriterPipeline(object):
-
     def open_spider(self, spider):
         self.file = open('items.jl', 'w')
 
@@ -91,15 +97,15 @@ class JsonWriterPipeline(object):
 
 
 class DataCleanerPipeline(object):
-    CHAR_RE = re.compile('\W+')
     TAG_RE = re.compile(r'<[^>]+>')
+    CHAR_RE = re.compile('\W+')
 
     def process_item(self, item, spider):
         for field in item:
             if field != 'location':
-                # remove $nbsp; char
-                # res = item[field].replace(u'\xa0', u' ')
+
                 res = item[field]
+
                 if field in ['description', 'title', 'date', 'price', 'dimension', 'author', 'city', 'address', 'zone']:
                     res = self.TAG_RE.sub(" ", res).strip()
 
@@ -107,8 +113,8 @@ class DataCleanerPipeline(object):
                     res = self.CHAR_RE.sub(" ", res).strip()
 
                 try:
-                    # item[field] = res.encode('UTF8', errors='ignore')
                     item[field] = res
+
                 except:
                     print sys.exc_info()
                     item[field] = 'ENCODING_ERROR'
@@ -210,14 +216,9 @@ class ZoneCleanerPipeline(object):
 
 
 class TagsPipeline(object):
-
     def process_item(self, item, spider):
         try:
-            if item['description'] is not "":
-                item['tags'] = parse_tags(get_tags(item['description']))
-
-            elif item['title'] is not "":
-                item['tags'] = get_tags(item['title'])
+            item['tags'] = parse_tags(item)
 
         except:
             print sys.exc_info()
